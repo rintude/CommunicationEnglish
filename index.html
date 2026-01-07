@@ -2,155 +2,192 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>English Communication</title>
+<title>English Communication - IELTS Speaking</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
-    color: #fff;
+    font-family: Segoe UI, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
     text-align: center;
 }
-
 header {
-    padding: 20px;
+    padding: 15px;
     font-size: 26px;
     font-weight: bold;
-    letter-spacing: 1px;
 }
+.stage { font-size: 18px; color: #ffd36e; }
+.band { font-size: 18px; color: #00ffa2; margin-bottom: 6px; }
 
-.container {
-    max-width: 800px;
+.chat {
+    max-width: 900px;
+    height: 420px;
     margin: auto;
-    padding: 20px;
-}
-
-.chat-box {
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.55);
     border-radius: 12px;
     padding: 15px;
-    height: 300px;
     overflow-y: auto;
     text-align: left;
 }
 
-.user {
-    color: #00eaff;
-    margin: 8px 0;
-}
-
-.ai {
-    color: #7CFF7C;
-    margin: 8px 0;
-}
+.user { color: #00eaff; margin: 6px 0; }
+.ai { color: #7CFF7C; margin: 6px 0; }
+.model { color: #ffd36e; margin: 6px 0; font-style: italic; }
 
 button {
-    margin-top: 20px;
-    padding: 15px 25px;
+    margin: 15px;
+    padding: 15px 30px;
     font-size: 18px;
-    border: none;
     border-radius: 30px;
+    border: none;
     background: linear-gradient(45deg, #00eaff, #00ffa2);
-    color: #000;
     cursor: pointer;
 }
 
-button:hover {
-    transform: scale(1.05);
-}
-
-footer {
-    margin-top: 25px;
-    font-size: 14px;
-    opacity: 0.8;
-}
+footer { font-size: 14px; opacity: 0.8; }
 </style>
 </head>
 
 <body>
 
 <header>🎤 English Communication</header>
+<div class="stage" id="stage">IELTS Speaking Test – Part 1</div>
+<div class="band" id="band">Estimated Band: 4.0</div>
 
-<div class="container">
-    <div class="chat-box" id="chatBox"></div>
-    <button onclick="startListening()">Start Speaking</button>
-</div>
+<div class="chat" id="chat"></div>
 
-<footer>© Babai | English Speaking Practice AI</footer>
+<button onclick="startListening()">Speak</button>
+
+<footer>© Babai | IELTS Speaking Practice</footer>
 
 <script>
-const chatBox = document.getElementById("chatBox");
+const chat = document.getElementById("chat");
+const stageLabel = document.getElementById("stage");
+const bandLabel = document.getElementById("band");
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 recognition.lang = "en-US";
-recognition.interimResults = false;
+
+let part = 1, qIndex = 0;
+let totalScore = 0, answers = 0;
+let lastQuestion = "";
+
+const part1 = [
+    "What is your full name?",
+    "Where are you from?",
+    "Do you work or study?",
+    "What do you do in your free time?"
+];
+
+const part3 = [
+    "Why do people need role models?",
+    "Should schools teach life skills?"
+];
+
+const modelAnswers = {
+    "What is your full name?":
+    "My full name is Babai. Most people call me by my first name, and I feel comfortable using it in both formal and informal situations.",
+
+    "Where are you from?":
+    "I come from a small town in India. It is a peaceful place with friendly people, and it has played an important role in shaping my personality.",
+
+    "Do you work or study?":
+    "Currently, I am working, but I also try to improve my skills by learning new things in my free time, especially communication skills.",
+
+    "What do you do in your free time?":
+    "In my free time, I usually relax by watching informative videos or practicing English, as it helps me gain confidence.",
+
+    "Why do people need role models?":
+    "People need role models because they provide inspiration and guidance. A good role model motivates individuals to improve themselves and make better life choices.",
+
+    "Should schools teach life skills?":
+    "Yes, I strongly believe schools should teach life skills because they prepare students for real-world challenges such as communication, teamwork, and decision-making."
+};
 
 function speak(text) {
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "en-US";
-    utter.rate = 1;
-    utter.pitch = 1;
-    speechSynthesis.speak(utter);
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    speechSynthesis.speak(u);
 }
 
-function addMessage(text, className) {
-    const div = document.createElement("div");
-    div.className = className;
-    div.innerText = text;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
+function add(text, cls) {
+    const d = document.createElement("div");
+    d.className = cls;
+    d.innerText = text;
+    chat.appendChild(d);
+    chat.scrollTop = chat.scrollHeight;
 }
 
-function generateReply(userText) {
-    userText = userText.toLowerCase();
+function analyzeBand(text) {
+    let score = 0;
+    const words = text.split(" ").length;
+    const unique = new Set(text.toLowerCase().split(" ")).size;
+    const hasVerb = /am|is|are|was|were|have|has|do|did|will|should|can/i.test(text);
 
-    let reply = "";
-
-    if (userText.includes("hello") || userText.includes("hi")) {
-        reply = "Hello! Nice to meet you. How are you feeling today?";
-    } 
-    else if (userText.includes("fine") || userText.includes("good")) {
-        reply = "That's great to hear! Can you tell me what you did today?";
-    }
-    else if (userText.includes("name")) {
-        reply = "My name is English Communication AI. What is your name?";
-    }
-    else if (userText.includes("job") || userText.includes("work")) {
-        reply = "What kind of work do you do? Please explain in English.";
-    }
-    else if (userText.includes("learn english")) {
-        reply = "That's a great decision. Why do you want to learn English?";
-    }
-    else if (userText.includes("don't know") || userText.includes("not sure")) {
-        reply = "No problem. Let's practice. Tell me about your favorite movie.";
-    }
-    else {
-        reply = "Good sentence. Can you explain that again using different words?";
-    }
-
-    return reply;
+    if (words >= 6) score++;
+    if (words >= 12) score++;
+    if (unique >= 6) score++;
+    if (hasVerb) score++;
+    return score;
 }
+
+function updateBand() {
+    const avg = totalScore / answers;
+    let band = 4 + avg * 0.8;
+    bandLabel.innerText = "Estimated Band: " + Math.min(8, band).toFixed(1);
+}
+
+function askQuestion() {
+    let q = "";
+    if (part === 1) {
+        q = part1[qIndex++];
+        if (qIndex >= part1.length) {
+            part = 3;
+            qIndex = 0;
+            stageLabel.innerText = "IELTS Speaking Test – Part 3";
+        }
+    }
+    if (part === 3) q = part3[qIndex++];
+
+    lastQuestion = q;
+    add("Examiner: " + q, "ai");
+    speak(q);
+}
+
+recognition.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    add("You: " + text, "user");
+
+    const s = analyzeBand(text);
+    totalScore += s; answers++;
+    updateBand();
+
+    if (modelAnswers[lastQuestion]) {
+        add("Band-7 Model Answer:\n" + modelAnswers[lastQuestion], "model");
+    }
+
+    if ((part === 1 && qIndex < part1.length) ||
+        (part === 3 && qIndex < part3.length)) {
+        setTimeout(askQuestion, 1200);
+    } else {
+        const end = "This is the end of the speaking test. Please review the model answers.";
+        add("Examiner: " + end, "ai");
+        speak(end);
+    }
+};
 
 function startListening() {
     recognition.start();
 }
 
-recognition.onresult = function(event) {
-    const userSpeech = event.results[0][0].transcript;
-    addMessage("You: " + userSpeech, "user");
-
-    const aiReply = generateReply(userSpeech);
-    setTimeout(() => {
-        addMessage("AI: " + aiReply, "ai");
-        speak(aiReply);
-    }, 500);
-};
-
-recognition.onerror = function() {
-    speak("I could not hear you clearly. Please try again.");
+window.onload = () => {
+    const intro = "Good morning. This is the IELTS speaking test. Can you tell me your full name please?";
+    add("Examiner: " + intro, "ai");
+    speak(intro);
+    lastQuestion = "What is your full name?";
 };
 </script>
 
