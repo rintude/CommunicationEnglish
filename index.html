@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>English Communication</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    text-align: center;
+}
+
+header {
+    padding: 20px;
+    font-size: 26px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+.chat-box {
+    background: rgba(0,0,0,0.5);
+    border-radius: 12px;
+    padding: 15px;
+    height: 300px;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.user {
+    color: #00eaff;
+    margin: 8px 0;
+}
+
+.ai {
+    color: #7CFF7C;
+    margin: 8px 0;
+}
+
+button {
+    margin-top: 20px;
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(45deg, #00eaff, #00ffa2);
+    color: #000;
+    cursor: pointer;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+footer {
+    margin-top: 25px;
+    font-size: 14px;
+    opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<header>🎤 English Communication</header>
+
+<div class="container">
+    <div class="chat-box" id="chatBox"></div>
+    <button onclick="startListening()">Start Speaking</button>
+</div>
+
+<footer>© Babai | English Speaking Practice AI</footer>
+
+<script>
+const chatBox = document.getElementById("chatBox");
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.lang = "en-US";
+recognition.interimResults = false;
+
+function speak(text) {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.rate = 1;
+    utter.pitch = 1;
+    speechSynthesis.speak(utter);
+}
+
+function addMessage(text, className) {
+    const div = document.createElement("div");
+    div.className = className;
+    div.innerText = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function generateReply(userText) {
+    userText = userText.toLowerCase();
+
+    let reply = "";
+
+    if (userText.includes("hello") || userText.includes("hi")) {
+        reply = "Hello! Nice to meet you. How are you feeling today?";
+    } 
+    else if (userText.includes("fine") || userText.includes("good")) {
+        reply = "That's great to hear! Can you tell me what you did today?";
+    }
+    else if (userText.includes("name")) {
+        reply = "My name is English Communication AI. What is your name?";
+    }
+    else if (userText.includes("job") || userText.includes("work")) {
+        reply = "What kind of work do you do? Please explain in English.";
+    }
+    else if (userText.includes("learn english")) {
+        reply = "That's a great decision. Why do you want to learn English?";
+    }
+    else if (userText.includes("don't know") || userText.includes("not sure")) {
+        reply = "No problem. Let's practice. Tell me about your favorite movie.";
+    }
+    else {
+        reply = "Good sentence. Can you explain that again using different words?";
+    }
+
+    return reply;
+}
+
+function startListening() {
+    recognition.start();
+}
+
+recognition.onresult = function(event) {
+    const userSpeech = event.results[0][0].transcript;
+    addMessage("You: " + userSpeech, "user");
+
+    const aiReply = generateReply(userSpeech);
+    setTimeout(() => {
+        addMessage("AI: " + aiReply, "ai");
+        speak(aiReply);
+    }, 500);
+};
+
+recognition.onerror = function() {
+    speak("I could not hear you clearly. Please try again.");
+};
+</script>
+
+</body>
+</html>
